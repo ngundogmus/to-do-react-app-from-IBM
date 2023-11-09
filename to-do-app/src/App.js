@@ -1,25 +1,81 @@
 import logo from './logo.svg';
+import React, { useEffect } from 'react';
 import './App.css';
 
-function App() {
+const App = () =>{
+  const [todos , setTodos] = React.useState([]);
+  const [todoEditing, setTodoEditing] = React.useState(null);
+
+  useEffect(()=>{
+    const json = localStorage.getItem("todos");
+    //It retrieves the value stored in the local storage under the key "todos" and assigns it to the variable json.
+    const loadedTodos = JSON.parse(json);
+    if (loadedTodos){
+      setTodos(loadedTodos);
+    } 
+  },[]);
+
+  useEffect(() =>{
+    if(todos.length > 0){
+      const json = JSON.stringify(todos)
+      //It converts the todos array into a JSON-formatted string using JSON
+      localStorage.setItem("todos",json) 
+      // It sets the "todos" key in the local storage to the JSON string representation of the todos array. This effectively saves the current state of todos to the local storage.
+    }    
+  }, [todos]);
+
+  function handlesubmit(e) {
+    e.prevenDefault();
+    let todo = document.getElementById('todoAdd').value
+    const newTodo = {
+      id : new Date.getTime(),
+      text : todo.trim(),
+      completed : false,      
+    };
+    if (newTodo.text.length > 0 ){
+      setTodos([...todos].concat(newTodo));
+    }else {
+      alert("Enter Valid Task");
+    }
+    document.getElementById('todoAdd').value = ""
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div id='todo-list'>
+      <h1>To Do List</h1>
+        <form onSubmit={handlesubmit}>
+          <input type='text' name='todoAdd' id='todoAdd'> </input>
+          <button type='submit'>Add Todo</button>
+        </form>
+        {/* The todos.map function is used to iterate over the todos array
+         and render a div for each todo item.*/}
+          {todos.map((todo)=>{
+            <div key={todo.id} className='todo'>
+              <div className='todo-text'>
+                <input type='checkbox' 
+                id='completed'
+                checked={todo.completed}
+                onChange={()=> toggleComplete(todo.id)}/>
+                {/* if it is edit mode, display input box, else display text */}
+                {todo.id === todoEditing ? 
+                (<input type="text" id = {todo.id} defaultValue={todo.text}/>):
+                (<div>{todo.text}</div>)
+                }
+              </div>
+              <div className='todo-actions'>
+                {/* if it is edit mode, allow submit edit, else allow edit */}
+                {todo.id === todoEditing ?
+                (<button onClick={()=> submitEdits()}>Submit Edits</button>):
+                (<button onClick={() => setTodoEditing(todo.id)}>Edit</button>)
+                }
+                <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+              </div>
+            </div>
+        })}
     </div>
   );
-}
+};
 
-export default App;
+
+
+
