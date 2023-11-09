@@ -33,12 +33,45 @@ const App = () =>{
       completed : false,      
     };
     if (newTodo.text.length > 0 ){
+      //it updates the todos state by creating a new array 
+      //with the existing todos ([...todos]) and adding the newTodo using concat
       setTodos([...todos].concat(newTodo));
     }else {
       alert("Enter Valid Task");
     }
     document.getElementById('todoAdd').value = ""
   }
+
+  function deleteTodo(id) {
+    let updatedTodos = [...todos].filter((todo) => todo.id !== id);
+    setTodos(updatedTodos);
+  }
+
+  function toggleComplete(id) {
+    let updatedTodos = [...todos].map((todo) => {
+      if (todo.id === id) {
+        todo.completed = !todo.completed;
+      }
+      return todo;
+    });
+    setTodos(updatedTodos);
+  }
+
+  function submitEdits(newtodo) {
+    // Creates a new array with todos,
+    const updatedTodos = [...todos].map((todo) => {
+      if (todo.id === newtodo.id) {
+        // Updates the text of the todo with the input value from the corresponding input field
+        todo.text = document.getElementById(newtodo.id).value;
+        }
+        return todo;
+      });
+      // Sets the todos state to the updated array with the edited text
+      setTodos(updatedTodos);
+      // Resets the todoEditing state to null, indicating that editing mode is no longer active
+      setTodoEditing(null);
+    }
+  
 
   return (
     <div id='todo-list'>
